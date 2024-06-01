@@ -5,7 +5,6 @@ const { initSocket } = require("./utils/socket");
 const server = http.createServer(app);
 const io = initSocket(server);
 
-// Ensure controllers are imported after initializing socket
 require("./controllers/bidController");
 
 server.listen(8000, () => {
