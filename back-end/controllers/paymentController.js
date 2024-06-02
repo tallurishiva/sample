@@ -64,7 +64,7 @@ exports.verifyPayment = async (req, res) => {
         await newBalanceDoc.save();
       }
 
-      res.json({ status: 'success' });
+      res.json({ status: 'success',transaction });
     } catch (error) {
       console.log("error  "+error);
       res.status(500).json({ status: 'failed', error: error.message });
@@ -96,7 +96,7 @@ exports.withdrawFunds = async (req, res) => {
       userId,
       date: new Date(),
       particulars: 'Withdrawal',
-      amount: amount,
+      amount: -amount,
       balanceInitial: initialBalance,
       balanceAfter: newBalance,
     });
@@ -106,7 +106,7 @@ exports.withdrawFunds = async (req, res) => {
     balance.amount = newBalance;
     await balance.save();
 
-    res.json({ status: 'success', newBalance });
+    res.json({ status: 'success', newBalance,transaction });
   } catch (error) {
     res.status(500).json({ status: 'failed', error: error.message });
   }
@@ -123,6 +123,21 @@ exports.findbalance = async (req, res) => {
     const balance = await Balance.findOne({ userId });
     const initialBalance = balance ? balance.amount : 0;
     res.json({ status: 'success', initialBalance});
+  } catch (error) {
+    res.status(500).json({ status: 'failed', error: error.message });
+  }
+};
+
+exports.transaction = async (req, res) => {
+  const userId = req.body.userID;
+  
+  if (!userId ) {
+    return res.status(400).json({ status: 'failed', message: 'Invalid user' });
+  }
+
+  try {
+    const transactions = await Transaction.find({ userId }).sort({ date: -1 });
+    res.json({ status: 'success', transactions});
   } catch (error) {
     res.status(500).json({ status: 'failed', error: error.message });
   }
